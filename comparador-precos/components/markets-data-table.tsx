@@ -122,7 +122,7 @@ console.log(markets)
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuSeparator />
-                <Link href={`/cadastro/${market.id}`}>
+                <Link href={`/mercados/${market.id}/editar`}>
                 <DropdownMenuItem>
                   <Edit className="mr-2 h-4 w-4" />
                   Editar

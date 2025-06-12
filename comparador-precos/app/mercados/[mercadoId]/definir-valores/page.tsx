@@ -297,11 +297,11 @@ export default function SetProductPricePage() {
       O preço foi salvo com sucesso.
     </p>
 
-    {/* Pegando os dados do produto usando o ID */}
     {(() => {
-      const selectedProduct = products?.find(
-        (p: any) => p.id === form.getValues("produtoId")
-      );
+      
+      const selectedProduct = products.find(
+  (p: { id: number }) => p.id === Number(form.getValues("produtoId"))
+    );
 
       return (
         <div className="mt-4 p-4 bg-muted/30 rounded-lg mb-6">

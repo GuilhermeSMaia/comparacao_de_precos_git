@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -8,30 +8,64 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import { ImageUpload } from "@/components/image-upload"
 import { Progress } from "@/components/ui/progress"
 import { Loader2, Store, CheckCircle, MapPin, Phone, Mail } from "lucide-react"
 
-const marketSchema = z.object({
+const MarketSchema = z.object({
+  mercadoId: z.string().optional(),
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres").max(100, "Nome muito longo"),
 })
 
-type MarketFormData = z.infer<typeof marketSchema>
+type MarketRegistrationFormProps = {
+  id?: string
+}
+type MarketFormData = z.infer<typeof MarketSchema>
 
-export function MarketRegistrationForm() {
+export function MarketRegistrationForm({ id }: MarketRegistrationFormProps) {
+  const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitProgress, setSubmitProgress] = useState(0)
   const [isSuccess, setIsSuccess] = useState(false)
   const { toast } = useToast()
-
+  
   const form = useForm<MarketFormData>({
-    resolver: zodResolver(marketSchema),
+    resolver: zodResolver(MarketSchema),
     defaultValues: {
+      mercadoId: id ?? "",
       name: "",
     },
   })
+
+   useEffect(() => {
+    const fetchMarket = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/mercados/getDataById/${id}`)
+        if (!response.ok) {
+          throw new Error("Erro ao buscar mercado")
+        }
+
+        const data = await response.json()
+        form.reset({
+          mercadoId: id,
+          name: data.name || "",
+        })
+      } catch (error) {
+        toast({
+          title: "Erro ao buscar mercado",
+          description: "Não foi possível carregar os dados do mercado.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (id) {
+      fetchMarket()
+    }
+  }, [id, form, toast])
+
 
   const onSubmit = async (data: MarketFormData) => {
   setIsSubmitting(true)
